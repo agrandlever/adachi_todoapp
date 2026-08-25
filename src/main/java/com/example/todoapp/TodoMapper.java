@@ -8,4 +8,8 @@ import org.apache.ibatis.annotations.Mapper;
 public interface TodoMapper {
 
     List<Todo> findAll();
+
+    Todo findById(Long id);
+
+    void insert(Todo todo);
 }

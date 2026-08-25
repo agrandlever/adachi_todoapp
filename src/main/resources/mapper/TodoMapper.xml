@@ -17,4 +17,35 @@
         FROM todos
         ORDER BY due_date ASC
     </select>
+
+    <select id="findById" resultType="com.example.todoapp.Todo">
+        SELECT
+            id,
+            title,
+            detail,
+            category,
+            priority,
+            due_date,
+            completed,
+            created_at,
+            updated_at
+        FROM todos
+        WHERE id = #{id}
+    </select>
+
+    <insert id="insert" parameterType="com.example.todoapp.Todo">
+        INSERT INTO todos (
+            title,
+            detail,
+            category,
+            priority,
+            due_date
+        ) VALUES (
+            #{title},
+            #{detail},
+            #{category},
+            #{priority},
+            #{dueDate}
+        )
+    </insert>
 </mapper>
