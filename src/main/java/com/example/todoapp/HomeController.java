@@ -77,4 +77,13 @@ public class HomeController {
         todo.setId(id);
         return "edit";
     }
+
+    @PostMapping("/todos/{id}")
+    public String update(@PathVariable Long id, @ModelAttribute("todo") Todo todo,
+            RedirectAttributes redirectAttributes) {
+        todo.setId(id);
+        todoMapper.update(todo);
+        redirectAttributes.addFlashAttribute("message", "保存しました");
+        return "redirect:/todos";
+    }
 }

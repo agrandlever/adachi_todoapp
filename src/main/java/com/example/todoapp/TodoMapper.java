@@ -12,4 +12,6 @@ public interface TodoMapper {
     Todo findById(Long id);
 
     void insert(Todo todo);
+
+    void update(Todo todo);
 }

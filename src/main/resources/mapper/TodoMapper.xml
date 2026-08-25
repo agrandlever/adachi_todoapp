@@ -48,4 +48,16 @@
             #{dueDate}
         )
     </insert>
+
+    <update id="update" parameterType="com.example.todoapp.Todo">
+        UPDATE todos
+        SET
+            title = #{title},
+            detail = #{detail},
+            category = #{category},
+            priority = #{priority},
+            due_date = #{dueDate},
+            completed = #{completed}
+        WHERE id = #{id}
+    </update>
 </mapper>
