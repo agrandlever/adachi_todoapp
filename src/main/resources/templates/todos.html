@@ -34,7 +34,7 @@
                     <td th:text="${todo.priority == 1 ? '高' : (todo.priority == 2 ? '中' : (todo.priority == 3 ? '低' : ''))}"></td>
                     <td th:text="${todo.dueDate}"></td>
                     <td th:text="${todo.completed == true ? '完了' : '未完了'}"></td>
-                    <td><a class="link" th:href="@{/todos/{id}/edit(id=${todo.id})}">編集</a></td>
+                    <td><a class="link" th:href="@{/todos/{id}/edit(id=${todo.id})}">編集</a> <a class="link" th:href="@{/todos/{id}/delete(id=${todo.id})}">削除</a></td>
                 </tr>
             </tbody>
         </table>
