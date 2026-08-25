@@ -1,0 +1,592 @@
+<!doctype html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todoアプリ テスト仕様書</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            margin: 0;
+            width: 100%;
+            color: #1f2937;
+            background: #ffffff;
+            font-family: "Yu Gothic UI", "Meiryo", sans-serif;
+        }
+
+        body {
+            padding: 14px;
+        }
+
+        .page {
+            width: 100%;
+            max-width: none;
+            margin: 0;
+        }
+
+        .header-row {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 10px;
+        }
+
+        h1 {
+            margin: 0 0 4px;
+            font-size: 22px;
+        }
+
+        .summary {
+            margin: 0;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        .print-button {
+            flex: 0 0 auto;
+            border: 1px solid #334155;
+            border-radius: 6px;
+            padding: 8px 16px;
+            background: #334155;
+            color: #ffffff;
+            font: inherit;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+        }
+
+        th,
+        td {
+            border: 1px solid #64748b;
+            padding: 4px 5px;
+            vertical-align: top;
+            text-align: left;
+            font-size: 11px;
+            line-height: 1.35;
+            overflow-wrap: anywhere;
+        }
+
+        th {
+            background: #e2e8f0;
+            text-align: center;
+            font-weight: 700;
+        }
+
+        td.number,
+        td.result {
+            vertical-align: middle;
+            text-align: center;
+        }
+
+        .result-options {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 4px 8px;
+        }
+
+        .result-options label {
+            white-space: nowrap;
+        }
+
+        input[type="radio"] {
+            margin: 0 2px 0 0;
+            vertical-align: -1px;
+            accent-color: #1d4ed8;
+        }
+
+        textarea {
+            display: block;
+            width: 100%;
+            min-height: 38px;
+            border: 1px solid #94a3b8;
+            border-radius: 3px;
+            padding: 3px 4px;
+            background: #ffffff;
+            color: #111827;
+            font: inherit;
+            line-height: 1.35;
+            resize: vertical;
+            overflow: hidden;
+        }
+
+        @page {
+            size: A4 landscape;
+            margin: 8mm;
+        }
+
+        @media print {
+            body {
+                padding: 0;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .no-print {
+                display: none !important;
+            }
+
+            h1 {
+                font-size: 16pt;
+            }
+
+            .summary {
+                font-size: 8pt;
+            }
+
+            th,
+            td {
+                padding: 2.5px 3px;
+                font-size: 7.5pt;
+            }
+
+            thead {
+                display: table-header-group;
+            }
+
+            tr {
+                break-inside: avoid;
+                page-break-inside: avoid;
+            }
+
+            textarea {
+                min-height: 0;
+                border-color: #64748b;
+                resize: none;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+<main class="page">
+    <div class="header-row">
+        <div>
+            <h1>Todoアプリ テスト仕様書</h1>
+            <p class="summary">対象：<a href="http://localhost:8080/todos">http://localhost:8080/todos</a> ／ 実施前の前提：todos は5件 ／ 項目数：45件</p>
+            <p class="summary">上から順に実施し、最後の項目で試験用データを削除して todos を5件へ戻す。</p>
+        </div>
+        <button class="print-button no-print" type="button" onclick="prepareAndPrint()">PDFで保存</button>
+    </div>
+
+    <table>
+        <colgroup>
+            <col style="width: 5%">
+            <col style="width: 20%">
+            <col style="width: 15%">
+            <col style="width: 25%">
+            <col style="width: 10%">
+            <col style="width: 25%">
+        </colgroup>
+        <thead>
+        <tr>
+            <th scope="col">番号</th>
+            <th scope="col">確かめること</th>
+            <th scope="col">入れる値</th>
+            <th scope="col">期待する結果</th>
+            <th scope="col">結果</th>
+            <th scope="col">備考/NG</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td class="number">1</td>
+            <td>一覧画面の初期表示</td>
+            <td><code>/todos</code> を開く</td>
+            <td>5件のデータ行が「やること／ジャンル／優先度／期限／状態／操作」の順で並び、上部の絞り込み欄・並び替えリンク2本・「新規登録」と各行の「編集」「削除」が表示される。</td>
+            <td class="result"><div class="result-options"><label><input type="radio" name="result-1" value="OK">OK</label><label><input type="radio" name="result-1" value="NG">NG</label></div></td>
+            <td><textarea rows="2" aria-label="1番の備考またはNG内容"></textarea></td>
+        </tr>
+        <tr>
+            <td class="number">2</td>
+            <td>新規登録画面の中身</td>
+            <td>一覧の「新規登録」を押す</td>
+            <td><code>/todos/new</code> に、空欄のやること・メモ・ジャンル・優先度・期限と、「確認する」「一覧へ」が表示され、ジャンルは指定の5種類から選べる。</td>
+            <td class="result"><div class="result-options"><label><input type="radio" name="result-2" value="OK">OK</label><label><input type="radio" name="result-2" value="NG">NG</label></div></td>
+            <td><textarea rows="2" aria-label="2番の備考またはNG内容"></textarea></td>
+        </tr>
+        <tr>
+            <td class="number">3</td>
+            <td>登録画面の「一覧へ」</td>
+            <td>「一覧へ」を押す</td>
+            <td><code>/todos</code> の一覧画面に戻り、データ行は5件のまま表示される。</td>
+            <td class="result"><div class="result-options"><label><input type="radio" name="result-3" value="OK">OK</label><label><input type="radio" name="result-3" value="NG">NG</label></div></td>
+            <td><textarea rows="2" aria-label="3番の備考またはNG内容"></textarea></td>
+        </tr>
+        <tr>
+            <td class="number">4</td>
+            <td>登録時のやること未入力</td>
+            <td>新規登録を開き、やること＝空、ジャンル＝デザイン、優先度＝高で「確認する」</td>
+            <td>登録画面に留まり、やること欄の下に「やることを入力してください」と表示される。</td>
+            <td class="result"><div class="result-options"><label><input type="radio" name="result-4" value="OK">OK</label><label><input type="radio" name="result-4" value="NG">NG</label></div></td>
+            <td><textarea rows="2" aria-label="4番の備考またはNG内容"></textarea></td>
+        </tr>
+        <tr>
+            <td class="number">5</td>
+            <td>登録時の半角空白だけのやること</td>
+            <td>やること＝半角空白3個で「確認する」</td>
+            <td>登録画面に留まり、やること欄の下に「やることを入力してください」と表示される。</td>
+            <td class="result"><div class="result-options"><label><input type="radio" name="result-5" value="OK">OK</label><label><input type="radio" name="result-5" value="NG">NG</label></div></td>
+            <td><textarea rows="2" aria-label="5番の備考またはNG内容"></textarea></td>
+        </tr>
+        <tr>
+            <td class="number">6</td>
+            <td>登録時の全角空白だけのやること</td>
+            <td>やること＝全角空白3個で「確認する」</td>
+            <td>登録画面に留まり、やること欄の下に「やることを入力してください」と表示される。</td>
+            <td class="result"><div class="result-options"><label><input type="radio" name="result-6" value="OK">OK</label><label><input type="radio" name="result-6" value="NG">NG</label></div></td>
+            <td><textarea rows="2" aria-label="6番の備考またはNG内容"></textarea></td>
+        </tr>
+        <tr>
+            <td class="number">7</td>
+            <td>登録時のやること256文字</td>
+            <td>やること＝「あ」を256文字で「確認する」</td>
+            <td>登録画面に留まり、やること欄の下に「やることは255文字以内で入力してください」と表示される。</td>
+            <td class="result"><div class="result-options"><label><input type="radio" name="result-7" value="OK">OK</label><label><input type="radio" name="result-7" value="NG">NG</label></div></td>
+            <td><textarea rows="2" aria-label="7番の備考またはNG内容"></textarea></td>
+        </tr>
+        <tr>
+            <td class="number">8</td>
+            <td>登録時のメモ256文字</td>
+            <td>やること＝文字数確認、メモ＝「い」を256文字で「確認する」</td>
+            <td>登録画面に留まり、メモ欄の下に「メモは255文字以内で入力してください」と表示される。</td>
+            <td class="result"><div class="result-options"><label><input type="radio" name="result-8" value="OK">OK</label><label><input type="radio" name="result-8" value="NG">NG</label></div></td>
+            <td><textarea rows="2" aria-label="8番の備考またはNG内容"></textarea></td>
+        </tr>
+        <tr>
+            <td class="number">9</td>
+            <td>登録時のジャンル未選択</td>
+            <td>やること＝文字数確認、メモ＝空、ジャンル＝空、優先度＝高で「確認する」</td>
+            <td>登録画面に留まり、ジャンル欄の下に「ジャンルを選んでください」と表示される。</td>
+            <td class="result"><div class="result-options"><label><input type="radio" name="result-9" value="OK">OK</label><label><input type="radio" name="result-9" value="NG">NG</label></div></td>
+            <td><textarea rows="2" aria-label="9番の備考またはNG内容"></textarea></td>
+        </tr>
+        <tr>
+            <td class="number">10</td>
+            <td>登録時の優先度未選択</td>
+            <td>やること＝文字数確認、ジャンル＝デザイン、優先度＝空で「確認する」</td>
+            <td>登録画面に留まり、優先度欄の下に「優先度を選んでください」と表示される。</td>
+            <td class="result"><div class="result-options"><label><input type="radio" name="result-10" value="OK">OK</label><label><input type="radio" name="result-10" value="NG">NG</label></div></td>
+            <td><textarea rows="2" aria-label="10番の備考またはNG内容"></textarea></td>
+        </tr>
+        <tr>
+            <td class="number">11</td>
+            <td>登録時の255文字の上限</td>
+            <td>やること＝「あ」を255文字、メモ＝「い」を255文字、ジャンル＝デザイン、優先度＝高、期限＝空で「確認する」</td>
+            <td>文字数のエラー文は表示されず、登録の確認画面へ移る。</td>
+            <td class="result"><div class="result-options"><label><input type="radio" name="result-11" value="OK">OK</label><label><input type="radio" name="result-11" value="NG">NG</label></div></td>
+            <td><textarea rows="2" aria-label="11番の備考またはNG内容"></textarea></td>
+        </tr>
+        <tr>
+            <td class="number">12</td>
+            <td>登録の確認画面の中身</td>
+            <td>前項の登録の確認画面を見る</td>
+            <td>入力した5項目が入力欄ではなく文字として並び、空の期限は「（入力なし）」になり、「登録する」「書き直す」が表示される。</td>
+            <td class="result"><div class="result-options"><label><input type="radio" name="result-12" value="OK">OK</label><label><input type="radio" name="result-12" value="NG">NG</label></div></td>
+            <td><textarea rows="2" aria-label="12番の備考またはNG内容"></textarea></td>
+        </tr>
+        <tr>
+            <td class="number">13</td>
+            <td>登録確認の「書き直す」</td>
+            <td>「書き直す」を押す</td>
+            <td>登録画面に戻り、前項で確認した5項目の値が入ったまま表示される。</td>
+            <td class="result"><div class="result-options"><label><input type="radio" name="result-13" value="OK">OK</label><label><input type="radio" name="result-13" value="NG">NG</label></div></td>
+            <td><textarea rows="2" aria-label="13番の備考またはNG内容"></textarea></td>
+        </tr>
+        <tr>
+            <td class="number">14</td>
+            <td>登録確認で未入力項目を表示</td>
+            <td>やること＝試験用8F4C2A-A、メモ＝空、ジャンル＝プログラミング、優先度＝高、期限＝空で「確認する」</td>
+            <td>登録の確認画面に5項目が文字で表示され、メモと期限はそれぞれ「（入力なし）」と表示される。</td>
+            <td class="result"><div class="result-options"><label><input type="radio" name="result-14" value="OK">OK</label><label><input type="radio" name="result-14" value="NG">NG</label></div></td>
+            <td><textarea rows="2" aria-label="14番の備考またはNG内容"></textarea></td>
+        </tr>
+        <tr>
+            <td class="number">15</td>
+            <td>1件目の登録と登録後の文</td>
+            <td>「登録する」を押す</td>
+            <td>一覧の最上部に「登録しました」と表示され、試験用8F4C2A-Aの優先度は「高」、期限は空欄、状態は「未完了」となり、データ行は6件になる。</td>
+            <td class="result"><div class="result-options"><label><input type="radio" name="result-15" value="OK">OK</label><label><input type="radio" name="result-15" value="NG">NG</label></div></td>
+            <td><textarea rows="2" aria-label="15番の備考またはNG内容"></textarea></td>
+        </tr>
+        <tr>
+            <td class="number">16</td>
+            <td>2件目の登録と「中」の表示</td>
+            <td>試験用8F4C2A-B、検索確認メモ、マーケティング、中、2099-01-10を確認して登録</td>
+            <td>一覧の最上部に「登録しました」と表示され、試験用8F4C2A-Bの優先度は「中」、期限は「2099-01-10」、状態は「未完了」となり、データ行は7件になる。</td>
+            <td class="result"><div class="result-options"><label><input type="radio" name="result-16" value="OK">OK</label><label><input type="radio" name="result-16" value="NG">NG</label></div></td>
+            <td><textarea rows="2" aria-label="16番の備考またはNG内容"></textarea></td>
+        </tr>
+        <tr>
+            <td class="number">17</td>
+            <td>3件目の登録と「低」の表示</td>
+            <td>試験用8F4C2A-C、並び替え確認メモ、資格、低、2099-12-20を確認して登録</td>
+            <td>一覧の最上部に「登録しました」と表示され、試験用8F4C2A-Cの優先度は「低」、期限は「2099-12-20」、状態は「未完了」となり、データ行は8件になる。</td>
+            <td class="result"><div class="result-options"><label><input type="radio" name="result-17" value="OK">OK</label><label><input type="radio" name="result-17" value="NG">NG</label></div></td>
+            <td><textarea rows="2" aria-label="17番の備考またはNG内容"></textarea></td>
+        </tr>
+        <tr>
+            <td class="number">18</td>
+            <td>名前の一部で絞り込む</td>
+            <td>名前＝8F4C2A-B、ジャンル＝すべてで「絞り込む」</td>
+            <td>名前に「8F4C2A-B」を含む試験用8F4C2A-Bだけが一覧に表示される。</td>
+            <td class="result"><div class="result-options"><label><input type="radio" name="result-18" value="OK">OK</label><label><input type="radio" name="result-18" value="NG">NG</label></div></td>
+            <td><textarea rows="2" aria-label="18番の備考またはNG内容"></textarea></td>
+        </tr>
+        <tr>
+            <td class="number">19</td>
+            <td>ジャンルが同じ行で絞り込む</td>
+            <td>名前＝空、ジャンル＝マーケティングで「絞り込む」</td>
+            <td>試験用8F4C2A-Bを含み、ジャンルが「マーケティング」とぴったり同じ行だけが一覧に表示される。</td>
+            <td class="result"><div class="result-options"><label><input type="radio" name="result-19" value="OK">OK</label><label><input type="radio" name="result-19" value="NG">NG</label></div></td>
+            <td><textarea rows="2" aria-label="19番の備考またはNG内容"></textarea></td>
+        </tr>
+        <tr>
+            <td class="number">20</td>
+            <td>名前とジャンルの両方で絞り込む</td>
+            <td>名前＝8F4C2A-B、ジャンル＝マーケティングで「絞り込む」</td>
+            <td>名前とジャンルの両方の条件を満たす試験用8F4C2A-Bだけが一覧に表示される。</td>
+            <td class="result"><div class="result-options"><label><input type="radio" name="result-20" value="OK">OK</label><label><input type="radio" name="result-20" value="NG">NG</label></div></td>
+            <td><textarea rows="2" aria-label="20番の備考またはNG内容"></textarea></td>
+        </tr>
+        <tr>
+            <td class="number">21</td>
+            <td>絞り込み結果が0件の表示</td>
+            <td>名前＝8F4C2A-B、ジャンル＝プログラミングで「絞り込む」</td>
+            <td>データ行は表示されず、「まだ1件も登録されていません」と表示される。</td>
+            <td class="result"><div class="result-options"><label><input type="radio" name="result-21" value="OK">OK</label><label><input type="radio" name="result-21" value="NG">NG</label></div></td>
+            <td><textarea rows="2" aria-label="21番の備考またはNG内容"></textarea></td>
+        </tr>
+        <tr>
+            <td class="number">22</td>
+            <td>絞り込み条件がどちらも空</td>
+            <td>名前＝空、ジャンル＝すべてで「絞り込む」</td>
+            <td>絞り込みは行われず、既存5件と試験用3件の合計8件が一覧に表示される。</td>
+            <td class="result"><div class="result-options"><label><input type="radio" name="result-22" value="OK">OK</label><label><input type="radio" name="result-22" value="NG">NG</label></div></td>
+            <td><textarea rows="2" aria-label="22番の備考またはNG内容"></textarea></td>
+        </tr>
+        <tr>
+            <td class="number">23</td>
+            <td>絞り込み条件と並び順をアドレスで保持</td>
+            <td>名前＝8F4C2A-B、ジャンル＝マーケティング、期限が近い順で絞り込み、表示中のアドレスを開き直す</td>
+            <td>アドレスの後ろに <code>keyword=8F4C2A-B</code>・<code>category=マーケティング</code>・<code>order=asc</code> が付き、開き直しても試験用8F4C2A-Bだけが表示される。</td>
+            <td class="result"><div class="result-options"><label><input type="radio" name="result-23" value="OK">OK</label><label><input type="radio" name="result-23" value="NG">NG</label></div></td>
+            <td><textarea rows="2" aria-label="23番の備考またはNG内容"></textarea></td>
+        </tr>
+        <tr>
+            <td class="number">24</td>
+            <td>最初に開いたときの並び順</td>
+            <td><code>/todos</code> をアドレス欄へ直接入力して開く</td>
+            <td>期限が入力された行は近い日付から遠い日付の順に並び、試験用8F4C2A-Bが試験用8F4C2A-Cより上に表示される。</td>
+            <td class="result"><div class="result-options"><label><input type="radio" name="result-24" value="OK">OK</label><label><input type="radio" name="result-24" value="NG">NG</label></div></td>
+            <td><textarea rows="2" aria-label="24番の備考またはNG内容"></textarea></td>
+        </tr>
+        <tr>
+            <td class="number">25</td>
+            <td>期限が遠い順の並び替え</td>
+            <td>「期限が遠い順」を押す</td>
+            <td>期限が入力された行は遠い日付から近い日付の順に並び、試験用8F4C2A-Cが試験用8F4C2A-Bより上に表示される。</td>
+            <td class="result"><div class="result-options"><label><input type="radio" name="result-25" value="OK">OK</label><label><input type="radio" name="result-25" value="NG">NG</label></div></td>
+            <td><textarea rows="2" aria-label="25番の備考またはNG内容"></textarea></td>
+        </tr>
+        <tr>
+            <td class="number">26</td>
+            <td>期限が近い順の並び替え</td>
+            <td>「期限が近い順」を押す</td>
+            <td>期限が入力された行は近い日付から遠い日付の順に並び、試験用8F4C2A-Bが試験用8F4C2A-Cより上に表示される。</td>
+            <td class="result"><div class="result-options"><label><input type="radio" name="result-26" value="OK">OK</label><label><input type="radio" name="result-26" value="NG">NG</label></div></td>
+            <td><textarea rows="2" aria-label="26番の備考またはNG内容"></textarea></td>
+        </tr>
+        <tr>
+            <td class="number">27</td>
+            <td>編集画面の中身と現在値</td>
+            <td>試験用8F4C2A-Aの「編集」を押す</td>
+            <td>編集画面に6項目が表示され、登録済みの値が入り、完了は未チェックで、「確認する」「一覧へ」が表示される。</td>
+            <td class="result"><div class="result-options"><label><input type="radio" name="result-27" value="OK">OK</label><label><input type="radio" name="result-27" value="NG">NG</label></div></td>
+            <td><textarea rows="2" aria-label="27番の備考またはNG内容"></textarea></td>
+        </tr>
+        <tr>
+            <td class="number">28</td>
+            <td>編集画面の「一覧へ」</td>
+            <td>「一覧へ」を押し、一覧で試験用8F4C2A-Aの「編集」をもう一度押す</td>
+            <td>一覧へ戻った時点では試験用8F4C2A-Aの値が変わらず、もう一度開いた編集画面にも登録済みの値が表示される。</td>
+            <td class="result"><div class="result-options"><label><input type="radio" name="result-28" value="OK">OK</label><label><input type="radio" name="result-28" value="NG">NG</label></div></td>
+            <td><textarea rows="2" aria-label="28番の備考またはNG内容"></textarea></td>
+        </tr>
+        <tr>
+            <td class="number">29</td>
+            <td>編集時のやること未入力</td>
+            <td>やること＝空で「確認する」</td>
+            <td>編集画面に留まり、やること欄の下に「やることを入力してください」と表示される。</td>
+            <td class="result"><div class="result-options"><label><input type="radio" name="result-29" value="OK">OK</label><label><input type="radio" name="result-29" value="NG">NG</label></div></td>
+            <td><textarea rows="2" aria-label="29番の備考またはNG内容"></textarea></td>
+        </tr>
+        <tr>
+            <td class="number">30</td>
+            <td>編集時の半角空白だけのやること</td>
+            <td>やること＝半角空白3個で「確認する」</td>
+            <td>編集画面に留まり、やること欄の下に「やることを入力してください」と表示される。</td>
+            <td class="result"><div class="result-options"><label><input type="radio" name="result-30" value="OK">OK</label><label><input type="radio" name="result-30" value="NG">NG</label></div></td>
+            <td><textarea rows="2" aria-label="30番の備考またはNG内容"></textarea></td>
+        </tr>
+        <tr>
+            <td class="number">31</td>
+            <td>編集時の全角空白だけのやること</td>
+            <td>やること＝全角空白3個で「確認する」</td>
+            <td>編集画面に留まり、やること欄の下に「やることを入力してください」と表示される。</td>
+            <td class="result"><div class="result-options"><label><input type="radio" name="result-31" value="OK">OK</label><label><input type="radio" name="result-31" value="NG">NG</label></div></td>
+            <td><textarea rows="2" aria-label="31番の備考またはNG内容"></textarea></td>
+        </tr>
+        <tr>
+            <td class="number">32</td>
+            <td>編集時のやること256文字</td>
+            <td>やること＝「あ」を256文字で「確認する」</td>
+            <td>編集画面に留まり、やること欄の下に「やることは255文字以内で入力してください」と表示される。</td>
+            <td class="result"><div class="result-options"><label><input type="radio" name="result-32" value="OK">OK</label><label><input type="radio" name="result-32" value="NG">NG</label></div></td>
+            <td><textarea rows="2" aria-label="32番の備考またはNG内容"></textarea></td>
+        </tr>
+        <tr>
+            <td class="number">33</td>
+            <td>編集時のメモ256文字</td>
+            <td>やること＝試験用8F4C2A-A、メモ＝「い」を256文字で「確認する」</td>
+            <td>編集画面に留まり、メモ欄の下に「メモは255文字以内で入力してください」と表示される。</td>
+            <td class="result"><div class="result-options"><label><input type="radio" name="result-33" value="OK">OK</label><label><input type="radio" name="result-33" value="NG">NG</label></div></td>
+            <td><textarea rows="2" aria-label="33番の備考またはNG内容"></textarea></td>
+        </tr>
+        <tr>
+            <td class="number">34</td>
+            <td>編集時のジャンル未選択</td>
+            <td>メモ＝空、ジャンル＝空、優先度＝高で「確認する」</td>
+            <td>編集画面に留まり、ジャンル欄の下に「ジャンルを選んでください」と表示される。</td>
+            <td class="result"><div class="result-options"><label><input type="radio" name="result-34" value="OK">OK</label><label><input type="radio" name="result-34" value="NG">NG</label></div></td>
+            <td><textarea rows="2" aria-label="34番の備考またはNG内容"></textarea></td>
+        </tr>
+        <tr>
+            <td class="number">35</td>
+            <td>編集時の優先度未選択</td>
+            <td>ジャンル＝プログラミング、優先度＝空で「確認する」</td>
+            <td>編集画面に留まり、優先度欄の下に「優先度を選んでください」と表示される。</td>
+            <td class="result"><div class="result-options"><label><input type="radio" name="result-35" value="OK">OK</label><label><input type="radio" name="result-35" value="NG">NG</label></div></td>
+            <td><textarea rows="2" aria-label="35番の備考またはNG内容"></textarea></td>
+        </tr>
+        <tr>
+            <td class="number">36</td>
+            <td>編集の確認画面の中身</td>
+            <td>やること＝試験用8F4C2A-A編集済み、メモ＝編集メモ、ジャンル＝資格、優先度＝低、期限＝空、完了＝チェックありで「確認する」</td>
+            <td>編集の確認画面に変更後の6項目が入力欄ではなく文字として並び、期限は「（入力なし）」になり、「保存する」「書き直す」が表示される。</td>
+            <td class="result"><div class="result-options"><label><input type="radio" name="result-36" value="OK">OK</label><label><input type="radio" name="result-36" value="NG">NG</label></div></td>
+            <td><textarea rows="2" aria-label="36番の備考またはNG内容"></textarea></td>
+        </tr>
+        <tr>
+            <td class="number">37</td>
+            <td>編集確認の「書き直す」</td>
+            <td>「書き直す」を押す</td>
+            <td>編集画面に戻り、前項で変更した6項目の値が入ったまま表示される。</td>
+            <td class="result"><div class="result-options"><label><input type="radio" name="result-37" value="OK">OK</label><label><input type="radio" name="result-37" value="NG">NG</label></div></td>
+            <td><textarea rows="2" aria-label="37番の備考またはNG内容"></textarea></td>
+        </tr>
+        <tr>
+            <td class="number">38</td>
+            <td>編集の保存と保存後の文</td>
+            <td>「確認する」を押し、編集の確認画面で「保存する」を押す</td>
+            <td>一覧の最上部に「保存しました」と表示され、対象行は「試験用8F4C2A-A編集済み／資格／低／期限は空欄／完了」に変わる。</td>
+            <td class="result"><div class="result-options"><label><input type="radio" name="result-38" value="OK">OK</label><label><input type="radio" name="result-38" value="NG">NG</label></div></td>
+            <td><textarea rows="2" aria-label="38番の備考またはNG内容"></textarea></td>
+        </tr>
+        <tr>
+            <td class="number">39</td>
+            <td>削除確認画面の中身</td>
+            <td>試験用8F4C2A-A編集済みの「削除」を押す</td>
+            <td>削除確認画面に「試験用8F4C2A-A編集済み／資格／（入力なし）」が入力欄ではなく文字で表示され、「消す」「やめる」が表示される。</td>
+            <td class="result"><div class="result-options"><label><input type="radio" name="result-39" value="OK">OK</label><label><input type="radio" name="result-39" value="NG">NG</label></div></td>
+            <td><textarea rows="2" aria-label="39番の備考またはNG内容"></textarea></td>
+        </tr>
+        <tr>
+            <td class="number">40</td>
+            <td>削除確認の「やめる」</td>
+            <td>「やめる」を押す</td>
+            <td>一覧画面に戻り、試験用8F4C2A-A編集済みは残ったままデータ行が8件表示される。</td>
+            <td class="result"><div class="result-options"><label><input type="radio" name="result-40" value="OK">OK</label><label><input type="radio" name="result-40" value="NG">NG</label></div></td>
+            <td><textarea rows="2" aria-label="40番の備考またはNG内容"></textarea></td>
+        </tr>
+        <tr>
+            <td class="number">41</td>
+            <td>削除と削除後の文</td>
+            <td>試験用8F4C2A-Bの「削除」を押し、削除確認画面で「消す」を押す</td>
+            <td>一覧の最上部に「削除しました」と表示され、試験用8F4C2A-Bが一覧から消えてデータ行は7件になる。</td>
+            <td class="result"><div class="result-options"><label><input type="radio" name="result-41" value="OK">OK</label><label><input type="radio" name="result-41" value="NG">NG</label></div></td>
+            <td><textarea rows="2" aria-label="41番の備考またはNG内容"></textarea></td>
+        </tr>
+        <tr>
+            <td class="number">42</td>
+            <td>存在しない番号の編集画面</td>
+            <td><code>/todos/999999999999/edit</code> を開く</td>
+            <td>一覧画面へ戻り、最上部に「見つかりませんでした」と表示される。</td>
+            <td class="result"><div class="result-options"><label><input type="radio" name="result-42" value="OK">OK</label><label><input type="radio" name="result-42" value="NG">NG</label></div></td>
+            <td><textarea rows="2" aria-label="42番の備考またはNG内容"></textarea></td>
+        </tr>
+        <tr>
+            <td class="number">43</td>
+            <td>存在しない番号の編集確認画面</td>
+            <td><code>/todos/999999999999/confirm</code> を開く</td>
+            <td>一覧画面へ戻り、最上部に「見つかりませんでした」と表示される。</td>
+            <td class="result"><div class="result-options"><label><input type="radio" name="result-43" value="OK">OK</label><label><input type="radio" name="result-43" value="NG">NG</label></div></td>
+            <td><textarea rows="2" aria-label="43番の備考またはNG内容"></textarea></td>
+        </tr>
+        <tr>
+            <td class="number">44</td>
+            <td>存在しない番号の削除確認画面</td>
+            <td><code>/todos/999999999999/delete</code> を開く</td>
+            <td>一覧画面へ戻り、最上部に「見つかりませんでした」と表示される。</td>
+            <td class="result"><div class="result-options"><label><input type="radio" name="result-44" value="OK">OK</label><label><input type="radio" name="result-44" value="NG">NG</label></div></td>
+            <td><textarea rows="2" aria-label="44番の備考またはNG内容"></textarea></td>
+        </tr>
+        <tr>
+            <td class="number">45</td>
+            <td>試験用データを削除して5件へ戻す</td>
+            <td>試験用8F4C2A-A編集済みと試験用8F4C2A-Cを、それぞれ削除確認画面から「消す」で削除する</td>
+            <td>2件の試験用データが一覧から消え、試験前からある5件だけがデータ行として表示される。</td>
+            <td class="result"><div class="result-options"><label><input type="radio" name="result-45" value="OK">OK</label><label><input type="radio" name="result-45" value="NG">NG</label></div></td>
+            <td><textarea rows="2" aria-label="45番の備考またはNG内容"></textarea></td>
+        </tr>
+        </tbody>
+    </table>
+</main>
+
+<script>
+    function expandTextarea(textarea) {
+        // 入力内容を全部見せるため、一度高さを縮めてから必要な高さへ広げます。
+        textarea.style.height = "0px";
+        textarea.style.height = (textarea.scrollHeight + 2) + "px";
+    }
+
+    function expandAllTextareas() {
+        document.querySelectorAll("textarea").forEach(expandTextarea);
+    }
+
+    function prepareAndPrint() {
+        // 印刷の直前に備考欄を広げ、入力した文が途中で切れない状態にします。
+        expandAllTextareas();
+        window.print();
+    }
+
+    document.querySelectorAll("textarea").forEach(function (textarea) {
+        textarea.addEventListener("input", function () {
+            expandTextarea(textarea);
+        });
+    });
+
+    window.addEventListener("beforeprint", expandAllTextareas);
+</script>
+</body>
+</html>
