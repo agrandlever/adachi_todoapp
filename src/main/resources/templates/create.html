@@ -14,11 +14,13 @@
             <div class="form-row">
                 <label class="form-label" for="title">やること</label>
                 <input class="form-input" type="text" th:field="*{title}">
+                <p class="error" th:if="${#fields.hasErrors('title')}" th:errors="*{title}"></p>
             </div>
 
             <div class="form-row">
                 <label class="form-label" for="detail">メモ</label>
                 <input class="form-input" type="text" th:field="*{detail}">
+                <p class="error" th:if="${#fields.hasErrors('detail')}" th:errors="*{detail}"></p>
             </div>
 
             <div class="form-row">
@@ -31,6 +33,7 @@
                     <option value="資格">資格</option>
                     <option value="就職活動">就職活動</option>
                 </select>
+                <p class="error" th:if="${#fields.hasErrors('category')}" th:errors="*{category}"></p>
             </div>
 
             <div class="form-row">
@@ -41,6 +44,7 @@
                     <option value="2">中</option>
                     <option value="3">低</option>
                 </select>
+                <p class="error" th:if="${#fields.hasErrors('priority')}" th:errors="*{priority}"></p>
             </div>
 
             <div class="form-row">
