@@ -27,3 +27,6 @@ Content-Type: application/json
 
 ### 4. 1件削除する
 DELETE http://localhost:8080/api/todos/1
+
+### 5. 祝日を直接取ってくる
+GET https://holidays-jp.github.io/api/v1/date.json
