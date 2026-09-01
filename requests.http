@@ -30,3 +30,6 @@ DELETE http://localhost:8080/api/todos/1
 
 ### 5. 祝日を直接取ってくる
 GET https://holidays-jp.github.io/api/v1/date.json
+
+### 6. 期間指定で取得する
+GET http://localhost:8080/api/todos?from=2026-09-01&to=2026-09-30

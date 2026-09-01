@@ -40,5 +40,42 @@
             </div>
         </section>
     </div>
+    <script>
+        async function loadTodos() {
+            const calendarTable = document.querySelector(".calendar-table");
+            // 表に付いている月初と月末を、APIの検索条件にそのまま使います。
+            const from = calendarTable.dataset.from;
+            const to = calendarTable.dataset.to;
+            const params = new URLSearchParams({ from, to });
+
+            const res = await fetch(`/api/todos?${params.toString()}`);
+            if (!res.ok) {
+                return;
+            }
+
+            const todos = await res.json();
+            // data-dateがある升目だけを集めるため、月の外の空きマスは入りません。
+            const cellsByDate = new Map(
+                Array.from(
+                    calendarTable.querySelectorAll("td[data-date]"),
+                    cell => [cell.dataset.date, cell]
+                )
+            );
+
+            for (const todo of todos) {
+                const cell = cellsByDate.get(todo.dueDate);
+                if (!cell) {
+                    continue;
+                }
+
+                const title = document.createElement("div");
+                // textContentを使い、やることの名前だけを文字として追加します。
+                title.textContent = todo.title;
+                cell.appendChild(title);
+            }
+        }
+
+        loadTodos();
+    </script>
 </body>
 </html>
