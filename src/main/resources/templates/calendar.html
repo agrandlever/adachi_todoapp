@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="|${calendarYear}年${calendarMonth}月のカレンダー|">カレンダー</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div class="container calendar-container">
+        <h1 class="page-title" th:text="|${calendarYear}年${calendarMonth}月|">カレンダー</h1>
+
+        <section class="calendar-card" aria-label="月間カレンダー">
+            <nav class="calendar-navigation" aria-label="月の切り替え">
+                <a class="btn sub" th:href="@{/calendar(year=${previousYear}, month=${previousMonth})}">前の月</a>
+                <a class="btn sub" th:href="@{/calendar(year=${nextYear}, month=${nextMonth})}">次の月</a>
+            </nav>
+
+            <div class="calendar-table-wrapper">
+                <table class="calendar-table" th:attr="data-from=${firstDate},data-to=${lastDate}">
+                    <thead>
+                        <tr>
+                            <th scope="col">日</th>
+                            <th scope="col">月</th>
+                            <th scope="col">火</th>
+                            <th scope="col">水</th>
+                            <th scope="col">木</th>
+                            <th scope="col">金</th>
+                            <th scope="col">土</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="week : ${calendarWeeks}">
+                            <td th:each="date : ${week}" th:attr="data-date=${date}">
+                                <span class="calendar-date" th:if="${date != null}" th:text="${date.dayOfMonth}"></span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+</body>
+</html>
