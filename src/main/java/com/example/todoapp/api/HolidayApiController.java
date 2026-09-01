@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -25,25 +26,30 @@ public class HolidayApiController {
     }
 
     @GetMapping
-    public Map<String, String> getHolidays(
+    public ResponseEntity<Map<String, String>> getHolidays(
             @RequestParam(required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
             @RequestParam(required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
-        Map<String, String> holidays = holidayClient.getHolidays();
+        HolidayClient.HolidayFetchResult result = holidayClient.getHolidays();
+        Map<String, String> holidays = result.holidays();
 
-        if (from == null && to == null) {
-            return holidays;
+        if (from != null || to != null) {
+            // from と to の日付自体も結果に含めます。
+            holidays = holidays.entrySet().stream()
+                    .filter(entry -> isWithinRange(LocalDate.parse(entry.getKey()), from, to))
+                    .collect(Collectors.toMap(
+                            Map.Entry::getKey,
+                            Map.Entry::getValue,
+                            (first, second) -> first,
+                            LinkedHashMap::new));
         }
 
-        // from と to の日付自体も結果に含めます。
-        return holidays.entrySet().stream()
-                .filter(entry -> isWithinRange(LocalDate.parse(entry.getKey()), from, to))
-                .collect(Collectors.toMap(
-                        Map.Entry::getKey,
-                        Map.Entry::getValue,
-                        (first, second) -> first,
-                        LinkedHashMap::new));
+        ResponseEntity.BodyBuilder response = ResponseEntity.ok();
+        if (result.unavailable()) {
+            response.header("X-Holidays-Unavailable", "true");
+        }
+        return response.body(holidays);
     }
 
     private boolean isWithinRange(LocalDate date, LocalDate from, LocalDate to) {
