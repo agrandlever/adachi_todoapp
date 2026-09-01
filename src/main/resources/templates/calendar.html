@@ -75,7 +75,52 @@
             }
         }
 
+        async function loadHolidays() {
+            const calendarTable = document.querySelector(".calendar-table");
+            // やることの取得と同じ月初・月末を、祝日の検索条件にも使います。
+            const from = calendarTable.dataset.from;
+            const to = calendarTable.dataset.to;
+            const params = new URLSearchParams({ from, to });
+            const cells = calendarTable.querySelectorAll("td[data-date]");
+
+            for (const cell of cells) {
+                // 年・月・日に分けて日付を作り、その日の曜日を調べます。
+                const [year, month, day] = cell.dataset.date.split("-").map(Number);
+                const dayOfWeek = new Date(year, month - 1, day).getDay();
+
+                if (dayOfWeek === 6) {
+                    cell.style.backgroundColor = "#eaf4ff";
+                } else if (dayOfWeek === 0) {
+                    cell.style.backgroundColor = "#fff0f3";
+                }
+            }
+
+            const res = await fetch(`/api/holidays?${params.toString()}`);
+            if (res.headers.has("X-Holidays-Unavailable")) {
+                const message = document.createElement("p");
+                message.textContent = "祝日を取れませんでした";
+                document.body.prepend(message);
+            }
+
+            if (!res.ok) {
+                return;
+            }
+
+            const holidays = await res.json();
+            for (const [date, holidayName] of Object.entries(holidays)) {
+                const cell = calendarTable.querySelector(`td[data-date="${date}"]`);
+                if (!cell) {
+                    continue;
+                }
+
+                // 祝日が土日と重なる場合は、祝日の背景色を優先します。
+                cell.style.backgroundColor = "#fff7d6";
+                cell.title = holidayName;
+            }
+        }
+
         loadTodos();
+        loadHolidays();
     </script>
 </body>
 </html>
