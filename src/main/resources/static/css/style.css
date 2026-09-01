@@ -136,9 +136,15 @@ body {
 
 .calendar-navigation {
     display: flex;
+    flex-wrap: wrap;
     justify-content: space-between;
     gap: 12px;
     margin-bottom: 20px;
+}
+
+.calendar-navigation-group {
+    display: flex;
+    gap: 12px;
 }
 
 .calendar-navigation .btn {
@@ -251,6 +257,10 @@ body {
 
     .calendar-navigation {
         margin-bottom: 12px;
+    }
+
+    .calendar-navigation-group {
+        width: 100%;
     }
 
     .calendar-navigation .btn {

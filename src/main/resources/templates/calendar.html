@@ -11,9 +11,15 @@
         <h1 class="page-title" th:text="|${calendarYear}年${calendarMonth}月|">カレンダー</h1>
 
         <section class="calendar-card" aria-label="月間カレンダー">
-            <nav class="calendar-navigation" aria-label="月の切り替え">
-                <a class="btn sub" th:href="@{/calendar(year=${previousYear}, month=${previousMonth})}">前の月</a>
-                <a class="btn sub" th:href="@{/calendar(year=${nextYear}, month=${nextMonth})}">次の月</a>
+            <nav class="calendar-navigation" aria-label="カレンダーの操作">
+                <div class="calendar-navigation-group">
+                    <a class="btn sub" th:href="@{/calendar(year=${previousYear}, month=${previousMonth})}">前の月</a>
+                    <a class="btn sub" th:href="@{/calendar(year=${nextYear}, month=${nextMonth})}">次の月</a>
+                </div>
+                <div class="calendar-navigation-group">
+                    <a class="btn sub" th:href="@{/todos}">表で見る</a>
+                    <a class="btn sub" th:href="@{/todos/new}">新規登録</a>
+                </div>
             </nav>
 
             <div class="calendar-table-wrapper">
@@ -61,17 +67,48 @@
                     cell => [cell.dataset.date, cell]
                 )
             );
+            const todosByDate = new Map();
 
             for (const todo of todos) {
-                const cell = cellsByDate.get(todo.dueDate);
-                if (!cell) {
+                if (!cellsByDate.has(todo.dueDate)) {
                     continue;
                 }
 
-                const title = document.createElement("div");
-                // textContentを使い、やることの名前だけを文字として追加します。
-                title.textContent = todo.title;
-                cell.appendChild(title);
+                const todosOnDate = todosByDate.get(todo.dueDate) ?? [];
+                todosOnDate.push(todo);
+                todosByDate.set(todo.dueDate, todosOnDate);
+            }
+
+            const today = new Date();
+            // 時刻の違いを除き、日付だけで期限と今日を比べます。
+            today.setHours(0, 0, 0, 0);
+
+            for (const [date, todosOnDate] of todosByDate) {
+                const cell = cellsByDate.get(date);
+
+                for (const todo of todosOnDate.slice(0, 3)) {
+                    const title = document.createElement("a");
+                    title.className = "link";
+                    title.href = `/todos/${todo.id}/edit`;
+                    title.style.display = "block";
+                    // textContentを使い、やることの名前だけを文字として追加します。
+                    title.textContent = todo.title;
+
+                    const [year, month, day] = todo.dueDate.split("-").map(Number);
+                    const dueDate = new Date(year, month - 1, day);
+                    if (dueDate < today && todo.completed === false) {
+                        title.style.color = "#dc2626";
+                    }
+
+                    cell.appendChild(title);
+                }
+
+                const hiddenCount = todosOnDate.length - 3;
+                if (hiddenCount > 0) {
+                    const more = document.createElement("div");
+                    more.textContent = `ほか ${hiddenCount}件`;
+                    cell.appendChild(more);
+                }
             }
         }
 
