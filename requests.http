@@ -33,3 +33,36 @@ GET https://holidays-jp.github.io/api/v1/date.json
 
 ### 6. 期間指定で取得する
 GET http://localhost:8080/api/todos?from=2026-09-01&to=2026-09-30
+
+### 7. 窓口と会話を始める
+POST http://localhost:8080/mcp
+Content-Type: application/json
+Accept: application/json, text/event-stream
+
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "initialize",
+  "params": {
+    "protocolVersion": "2025-06-18",
+    "capabilities": {},
+    "clientInfo": { "name": "requests.http", "version": "1.0" }
+  }
+}
+
+### 8. 道具の一覧をもらう
+POST http://localhost:8080/mcp
+Content-Type: application/json
+Accept: application/json, text/event-stream
+Mcp-Session-Id: ae2b5fb1-ecc1-4f90-aec7-4b385c966110
+
+{ "jsonrpc": "2.0", "id": 2, "method": "tools/list", "params": {} }
+
+### 9. 道具を1つ呼んでみる
+POST http://localhost:8080/mcp
+Content-Type: application/json
+Accept: application/json, text/event-stream
+Mcp-Session-Id: ae2b5fb1-ecc1-4f90-aec7-4b385c966110
+
+{ "jsonrpc": "2.0", "id": 3, "method": "tools/call",
+  "params": { "name": "list_todos", "arguments": {} } }
