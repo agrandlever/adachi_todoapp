@@ -23,8 +23,27 @@ public class TodoService {
     }
 
     public List<Todo> search(String keyword, String category, String order,
+            Boolean completed) {
+        return todoMapper.search(keyword, category, order, completed, null, null, null, null, false);
+    }
+
+    public List<Todo> search(String keyword, String category, String order,
+            Boolean completed, boolean trash) {
+        return todoMapper.search(keyword, category, order, completed, null, null, null, null, trash);
+    }
+
+    public List<Todo> search(String keyword, String category, String order,
+            Boolean completed, int limit, int offset, boolean trash) {
+        return todoMapper.search(keyword, category, order, completed, null, null, limit, offset, trash);
+    }
+
+    public List<Todo> search(String keyword, String category, String order,
             LocalDate from, LocalDate to) {
-        return todoMapper.search(keyword, category, order, from, to);
+        return todoMapper.search(keyword, category, order, null, from, to, null, null, false);
+    }
+
+    public int count(String keyword, String category, Boolean completed, boolean trash) {
+        return todoMapper.count(keyword, category, completed, trash);
     }
 
     public Todo findById(Long id) {
@@ -42,7 +61,17 @@ public class TodoService {
     }
 
     public void delete(Long id) {
-        todoMapper.deleteById(id);
+        todoMapper.softDeleteById(id);
         log.info("operation=削除 id={}", id);
+    }
+
+    public void restore(Long id) {
+        todoMapper.restoreById(id);
+        log.info("operation=復元 id={}", id);
+    }
+
+    public void togglePinned(Long id) {
+        todoMapper.togglePinnedById(id);
+        log.info("operation=印切替 id={}", id);
     }
 }

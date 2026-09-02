@@ -15,6 +15,8 @@ import jakarta.validation.Valid;
 @Controller
 public class HomeController {
 
+    private static final int PAGE_SIZE = 10;
+
     private final TodoService todoService;
 
     // コンストラクタで受け取ることで、HomeControllerがTodoServiceを利用できるようにします。
@@ -31,15 +33,37 @@ public class HomeController {
     @GetMapping("/todos")
     public String todos(@RequestParam(name = "keyword", defaultValue = "") String keyword,
             @RequestParam(name = "category", defaultValue = "") String category,
-            @RequestParam(name = "order", defaultValue = "asc") String order, Model model) {
+            @RequestParam(name = "order", defaultValue = "asc") String order,
+            @RequestParam(name = "showCompleted", defaultValue = "false") boolean showCompleted,
+            @RequestParam(name = "page", defaultValue = "1") int page,
+            @RequestParam(name = "trash", defaultValue = "0") int trash,
+            Model model) {
         if (!"desc".equals(order)) {
             order = "asc";
         }
 
-        model.addAttribute("todos", todoService.search(keyword, category, order));
+        boolean trashMode = trash == 1;
+        Boolean completed = showCompleted || trashMode ? null : false;
+        int totalCount = todoService.count(keyword, category, completed, trashMode);
+        int totalPages = (totalCount + PAGE_SIZE - 1) / PAGE_SIZE;
+
+        if (page < 1) {
+            page = 1;
+        } else if (totalPages > 0 && page > totalPages) {
+            page = totalPages;
+        }
+
+        int offset = (page - 1) * PAGE_SIZE;
+
+        model.addAttribute("todos", todoService.search(keyword, category, order,
+                completed, PAGE_SIZE, offset, trashMode));
         model.addAttribute("keyword", keyword);
         model.addAttribute("category", category);
         model.addAttribute("order", order);
+        model.addAttribute("showCompleted", showCompleted);
+        model.addAttribute("page", page);
+        model.addAttribute("totalPages", totalPages);
+        model.addAttribute("trash", trashMode ? 1 : 0);
         return "todos";
     }
 
@@ -127,6 +151,32 @@ public class HomeController {
     public String delete(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         todoService.delete(id);
         redirectAttributes.addFlashAttribute("message", "削除しました");
+        return "redirect:/todos";
+    }
+
+    @PostMapping("/todos/{id}/restore")
+    public String restore(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        todoService.restore(id);
+        redirectAttributes.addFlashAttribute("message", "戻しました");
+        return "redirect:/todos?trash=1";
+    }
+
+    @PostMapping("/todos/{id}/pin")
+    public String togglePin(@PathVariable Long id,
+            @RequestParam(name = "keyword", defaultValue = "") String keyword,
+            @RequestParam(name = "category", defaultValue = "") String category,
+            @RequestParam(name = "order", defaultValue = "asc") String order,
+            @RequestParam(name = "showCompleted", defaultValue = "false") boolean showCompleted,
+            @RequestParam(name = "page", defaultValue = "1") int page,
+            @RequestParam(name = "trash", defaultValue = "0") int trash,
+            RedirectAttributes redirectAttributes) {
+        todoService.togglePinned(id);
+        redirectAttributes.addAttribute("keyword", keyword);
+        redirectAttributes.addAttribute("category", category);
+        redirectAttributes.addAttribute("order", order);
+        redirectAttributes.addAttribute("showCompleted", showCompleted);
+        redirectAttributes.addAttribute("page", page);
+        redirectAttributes.addAttribute("trash", trash);
         return "redirect:/todos";
     }
 }

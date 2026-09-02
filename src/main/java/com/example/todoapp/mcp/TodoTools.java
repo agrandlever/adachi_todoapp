@@ -4,7 +4,9 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 import org.springframework.ai.mcp.annotation.McpTool;
 import org.springframework.ai.mcp.annotation.McpToolParam;
@@ -42,6 +44,31 @@ public class TodoTools {
         return todoService.search(keyword, category, "asc", fromDate, toDate).stream()
                 .map(TodoDto::from)
                 .toList();
+    }
+
+    @McpTool(name = "summarize_week", description = "期間内のやることを数えて、件数・ジャンルごとの内訳・期限切れ件数を要約して返す（一覧は返さない）")
+    public TodoSummary summarizeWeek(
+            @McpToolParam(description = "期間の始まり（yyyy-MM-dd）", required = false) String from,
+            @McpToolParam(description = "期間の終わり（yyyy-MM-dd）", required = false) String to) {
+        LocalDate fromDate = from == null ? null : LocalDate.parse(from);
+        LocalDate toDate = to == null ? null : LocalDate.parse(to);
+        List<Todo> todos = todoService.search(null, null, "asc", fromDate, toDate);
+
+        // 同じジャンルをまとめて数え、ジャンル名順に並べることで結果を読みやすくします。
+        Map<String, Long> categoryCounts = new TreeMap<>();
+        for (Todo todo : todos) {
+            categoryCounts.merge(todo.getCategory(), 1L, Long::sum);
+        }
+
+        LocalDate today = LocalDate.now();
+        long overdueCount = todos.stream()
+                // 画面と同じく「今日より前の期限で、まだ完了していないもの」を期限切れとします。
+                .filter(todo -> todo.getDueDate() != null
+                        && todo.getDueDate().isBefore(today)
+                        && Boolean.FALSE.equals(todo.getCompleted()))
+                .count();
+
+        return new TodoSummary(todos.size(), categoryCounts, overdueCount);
     }
 
     @McpTool(name = "get_todo", description = "やることを1件返す")
@@ -162,5 +189,8 @@ public class TodoTools {
             throw new IllegalArgumentException(
                     "ジャンルはデザイン・マーケティング・プログラミング・資格・就職活動のいずれかにしてください");
         }
+    }
+
+    public record TodoSummary(long totalCount, Map<String, Long> categoryCounts, long overdueCount) {
     }
 }

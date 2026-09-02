@@ -12,15 +12,29 @@
             priority,
             due_date,
             completed,
+            completed_at,
+            deleted_at,
+            pinned,
             created_at,
             updated_at
         FROM todos
         <where>
+            <choose>
+                <when test="trash">
+                    AND deleted_at IS NOT NULL
+                </when>
+                <otherwise>
+                    AND deleted_at IS NULL
+                </otherwise>
+            </choose>
             <if test="keyword != null and keyword != ''">
                 AND title LIKE CONCAT('%', #{keyword}, '%')
             </if>
             <if test="category != null and category != ''">
                 AND category = #{category}
+            </if>
+            <if test="completed != null">
+                AND completed = #{completed}
             </if>
             <if test="from != null">
                 AND due_date &gt;= #{from}
@@ -31,12 +45,39 @@
         </where>
         <choose>
             <when test="order == 'desc'">
-                ORDER BY due_date DESC
+                ORDER BY pinned DESC, due_date DESC
             </when>
             <otherwise>
-                ORDER BY due_date ASC
+                ORDER BY pinned DESC, due_date ASC
             </otherwise>
         </choose>
+        <if test="limit != null and offset != null">
+            LIMIT #{limit} OFFSET #{offset}
+        </if>
+    </select>
+
+    <select id="count" resultType="int">
+        SELECT COUNT(*)
+        FROM todos
+        <where>
+            <choose>
+                <when test="trash">
+                    AND deleted_at IS NOT NULL
+                </when>
+                <otherwise>
+                    AND deleted_at IS NULL
+                </otherwise>
+            </choose>
+            <if test="keyword != null and keyword != ''">
+                AND title LIKE CONCAT('%', #{keyword}, '%')
+            </if>
+            <if test="category != null and category != ''">
+                AND category = #{category}
+            </if>
+            <if test="completed != null">
+                AND completed = #{completed}
+            </if>
+        </where>
     </select>
 
     <select id="findById" resultType="com.example.todoapp.Todo">
@@ -48,10 +89,14 @@
             priority,
             due_date,
             completed,
+            completed_at,
+            deleted_at,
+            pinned,
             created_at,
             updated_at
         FROM todos
         WHERE id = #{id}
+          AND deleted_at IS NULL
     </select>
 
     <insert id="insert" parameterType="com.example.todoapp.Todo"
@@ -81,12 +126,34 @@
             category = #{category},
             priority = #{priority},
             due_date = #{dueDate},
+            completed_at = CASE
+                WHEN completed = FALSE AND #{completed} = TRUE THEN CURRENT_TIMESTAMP
+                WHEN completed = TRUE AND #{completed} = FALSE THEN NULL
+                ELSE completed_at
+            END,
             completed = #{completed}
         WHERE id = #{id}
+          AND deleted_at IS NULL
     </update>
 
-    <delete id="deleteById">
-        DELETE FROM todos
+    <update id="softDeleteById">
+        UPDATE todos
+        SET deleted_at = CURRENT_TIMESTAMP
         WHERE id = #{id}
-    </delete>
+          AND deleted_at IS NULL
+    </update>
+
+    <update id="restoreById">
+        UPDATE todos
+        SET deleted_at = NULL
+        WHERE id = #{id}
+          AND deleted_at IS NOT NULL
+    </update>
+
+    <update id="togglePinnedById">
+        UPDATE todos
+        SET pinned = NOT pinned
+        WHERE id = #{id}
+          AND deleted_at IS NULL
+    </update>
 </mapper>
