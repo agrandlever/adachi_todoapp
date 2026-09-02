@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>やること一覧</title>
-    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/style.css?v=20260902-priority-mark">
 </head>
 <body>
     <div class="container">
@@ -56,7 +56,8 @@
                     th:classappend="${todo.dueDate != null and todo.dueDate.isBefore(T(java.time.LocalDate).now()) and todo.completed == false} ? 'overdue' : ''">
                     <td th:text="${todo.title}"></td>
                     <td th:text="${todo.category}"></td>
-                    <td th:text="${todo.priority == 1 ? '高' : (todo.priority == 2 ? '中' : (todo.priority == 3 ? '低' : ''))}"></td>
+                    <td th:classappend="${todo.priority == 1} ? 'priority-high' : ''"
+                        th:text="${todo.priority == 1 ? '高' : (todo.priority == 2 ? '中' : (todo.priority == 3 ? '低' : ''))}"></td>
                     <td th:text="${todo.dueDate}"></td>
                     <td th:text="${todo.completed == true ? '完了' : '未完了'}"></td>
                     <td><a class="link" th:href="@{/todos/{id}/edit(id=${todo.id})}">編集</a> <a class="link" th:href="@{/todos/{id}/delete(id=${todo.id})}">削除</a></td>
